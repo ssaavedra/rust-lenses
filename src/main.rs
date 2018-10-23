@@ -28,9 +28,9 @@ fn mystr<'a> (v: &'a str) -> &'a str { v }
 
 
 fn main() {
-    let aop = struct_lens!(PersonInfo, personal_address);
-    let coa = struct_lens!(copy ExternalAddress, country);
-    let noc = struct_lens!(copy Country, name);
+    let aop = struct_lens!(clone PersonInfo, personal_address);
+    let coa = struct_lens!(clone ExternalAddress, country);
+    let noc = struct_lens!(clone Country, name);
     let aop_coa = compose(&aop, &coa);
     let aop_coa_noc = compose(&aop_coa, &noc);
     let aop_coa_noc2 = gen_lens!(copy PersonInfo, personal_address.country.name);
