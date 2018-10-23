@@ -1,0 +1,8 @@
+[package]
+name = "lenses"
+version = "0.1.0"
+authors = ["Santiago Saavedra <info@ssaavedra.eu>"]
+edition = "2018"
+
+[dependencies]
+quote = "0.6.8"
