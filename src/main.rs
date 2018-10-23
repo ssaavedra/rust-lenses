@@ -22,9 +22,9 @@ struct ExternalAddress<'a> {
     country: Country<'a>,
 }
 
-struct LensImpl<S, A> {
-    view: Box<Fn(&S) -> A>,
-    set: Box<Fn (&S, &A) -> S>,
+struct LensImpl<'a, S, A> {
+    view: &'a Fn(&S) -> A,
+    set: &'a Fn (&S, &A) -> S,
 }
 
 
@@ -33,11 +33,11 @@ struct CompoundLensImpl<'a, S, A, B> {
     rhs: &'a Lens<A, B>,
 }
 
-impl <S, A> Getter<S, A> for LensImpl<S, A> {
+impl <'a, S, A> Getter<S, A> for LensImpl<'a, S, A> {
     fn view(&self, s: &S) -> A { (self.view)(s) }
 }
 
-impl <S, A> Lens<S, A> for LensImpl<S, A> {
+impl <'a, S, A> Lens<S, A> for LensImpl<'a, S, A> {
     fn set(&self, s: &S, a: &A) -> S { (self.set)(s, a) }
 }
 
@@ -57,10 +57,10 @@ fn compose<'a, S, A, B>(lhs: &'a Lens<S, A>, rhs: &'a Lens<A, B>) -> CompoundLen
     }
 }
 
-fn lens<S, A>(getter: &'static Fn(&S) -> A, setter: &'static Fn(&S, &A) -> S) -> LensImpl<S, A> {
+fn lens<'a, S, A>(getter: &'a Fn(&S) -> A, setter: &'a Fn(&S, &A) -> S) -> LensImpl<'a, S, A> {
     LensImpl {
-        view: Box::new(getter),
-        set: Box::new(setter),
+        view: getter,
+        set: setter,
     }
 }
 
