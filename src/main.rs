@@ -4,25 +4,25 @@ use crate::lens::Lens;
 use crate::lens::compose;
 
 
-#[derive(Clone, Copy, Debug)]
-struct Country<'a> {
-    name: &'a str,
+#[derive(Clone, Debug)]
+struct Country {
+    name: String,
     flag: i64,
 }
 
-#[derive(Clone, Copy, Debug)]
-struct ExternalAddress<'a> {
-    address: &'a str,
+#[derive(Clone, Debug)]
+struct ExternalAddress {
+    address: String,
     zip: i64,
-    country: Country<'a>,
+    country: Country,
 }
 
-#[derive(Clone, Copy, Debug)]
-struct PersonInfo<'a> {
-    first_name: &'a str,
-    last_name: &'a str,
-    personal_address: ExternalAddress<'a>,
-    office_address: ExternalAddress<'a>,
+#[derive(Clone, Debug)]
+struct PersonInfo {
+    first_name: String,
+    last_name: String,
+    personal_address: ExternalAddress,
+    office_address: ExternalAddress,
 }
 
 
@@ -35,20 +35,20 @@ fn main() {
     let aop_coa_noc2 = gen_lens!(PersonInfo, personal_address.country.name);
 
     let person = PersonInfo {
-        first_name: "Foo",
-        last_name: "Bar",
+        first_name: String::from("Foo"),
+        last_name: String::from("Bar"),
         personal_address: ExternalAddress {
-            address: "123, Fake St.",
+            address: String::from("123, Fake St."),
             zip: 12345,
-            country: Country { name: "USA", flag: 0 }},
+            country: Country { name: String::from("USA"), flag: 0 }},
         office_address: ExternalAddress {
-            address: "", zip: 0,
-            country: Country { name: "USA", flag: 0 },
+            address: String::new(), zip: 0,
+            country: Country { name: String::from("USA"), flag: 0 },
         },
     };
 
-    let p2 = aop_coa_noc.set(&person, &"United States");
-    let p3 = aop_coa_noc2.set(&person, &"United States of America");
+    let p2 = aop_coa_noc.set(&person, &String::from("United States"));
+    let p3 = aop_coa_noc2.set(&person, &String::from("United States of America"));
 
     println!("Hello, world! {:?} {:?} {:?}", person, p2, p3);
 }

@@ -24,10 +24,10 @@ pub fn compose<'a, S, A, B>(lhs: &'a Lens<S, A>, rhs: &'a Lens<A, B>) -> Compoun
 
 macro_rules! struct_lens {
     ($thetype:ident, $expr:ident) => {
-        crate::lens::lens(&|obj: &$thetype| obj.$expr, &|obj, newval| {
+        crate::lens::lens(&|obj: &$thetype| obj.$expr.clone(), &|obj, newval| {
             $thetype {
-                $expr: *newval,
-                .. *obj
+                $expr: newval.clone(),
+                .. obj.clone()
             }
         })
     };
@@ -35,9 +35,9 @@ macro_rules! struct_lens {
 
 macro_rules! gen_lens {
     ($thetype:ident, $($expr:ident).*) => {
-        crate::lens::lens(&|obj: &$thetype| obj.$($expr).*, &|obj, newval| {
-            let mut new = *obj;
-            new.$($expr).* = *newval;
+        crate::lens::lens(&|obj: &$thetype| obj.$($expr).*.clone(), &|obj, newval| {
+            let mut new = obj.clone();
+            new.$($expr).* = newval.clone();
             new
         })
     };
