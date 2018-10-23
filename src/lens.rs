@@ -1,4 +1,3 @@
-
 pub trait Getter<S, A> {
     fn view(&self, s: &S) -> A;
 }
@@ -22,6 +21,7 @@ pub fn compose<'a, S, A, B>(lhs: &'a Lens<S, A>, rhs: &'a Lens<A, B>) -> Compoun
     }
 }
 
+#[macro_export]
 macro_rules! struct_lens {
     ($thetype:ident, $expr:ident) => {
         crate::lens::lens(&|obj: &$thetype| obj.$expr.clone(), &|obj, newval| {
@@ -31,8 +31,18 @@ macro_rules! struct_lens {
             }
         })
     };
+
+    (copy $thetype:ident, $expr:ident) => {
+        crate::lens::lens(&|obj: &$thetype| obj.$expr, &|obj, newval| {
+            $thetype {
+                $expr: *newval,
+                .. *obj
+            }
+        })
+    };
 }
 
+#[macro_export]
 macro_rules! gen_lens {
     ($thetype:ident, $($expr:ident).*) => {
         crate::lens::lens(&|obj: &$thetype| obj.$($expr).*.clone(), &|obj, newval| {
@@ -41,8 +51,15 @@ macro_rules! gen_lens {
             new
         })
     };
-}
 
+    (copy $thetype:ident, $($expr:ident).*) => {
+        crate::lens::lens(&|obj: &$thetype| obj.$($expr).*, &|obj, newval| {
+            let mut new = *obj;
+            new.$($expr).* = *newval;
+            new
+        })
+    };
+}
 
 pub struct LensImpl<'a, S, A> {
     view: &'a Fn(&S) -> A,
@@ -61,8 +78,6 @@ impl <'a, S, A> Getter<S, A> for LensImpl<'a, S, A> {
 impl <'a, S, A> Lens<S, A> for LensImpl<'a, S, A> {
     fn set(&self, s: &S, a: &A) -> S { (self.set)(s, a) }
 }
-
-
 
 impl <'a, S, A, B> Getter<S, B> for CompoundLensImpl<'a, S, A, B> {
     fn view(&self, s: &S) -> B { self.rhs.view(&self.lhs.view(s)) }

@@ -1,54 +1,56 @@
-
 #[macro_use] mod lens;
 use crate::lens::Lens;
 use crate::lens::compose;
 
 
-#[derive(Clone, Debug)]
-struct Country {
-    name: String,
+#[derive(Copy, Clone, Debug)]
+struct Country<'a> {
+    name: &'a str,
     flag: i64,
 }
 
-#[derive(Clone, Debug)]
-struct ExternalAddress {
-    address: String,
+#[derive(Copy, Clone, Debug)]
+struct ExternalAddress<'a> {
+    address: &'a str,
     zip: i64,
-    country: Country,
+    country: Country<'a>,
 }
 
-#[derive(Clone, Debug)]
-struct PersonInfo {
-    first_name: String,
-    last_name: String,
-    personal_address: ExternalAddress,
-    office_address: ExternalAddress,
+#[derive(Copy, Clone, Debug)]
+struct PersonInfo<'a> {
+    first_name: &'a str,
+    last_name: &'a str,
+    personal_address: ExternalAddress<'a>,
+    office_address: ExternalAddress<'a>,
 }
+
+fn mystr<'a> (v: &'a str) -> &'a str { v }
 
 
 fn main() {
     let aop = struct_lens!(PersonInfo, personal_address);
-    let coa = struct_lens!(ExternalAddress, country);
-    let noc = struct_lens!(Country, name);
+    let coa = struct_lens!(copy ExternalAddress, country);
+    let noc = struct_lens!(copy Country, name);
     let aop_coa = compose(&aop, &coa);
     let aop_coa_noc = compose(&aop_coa, &noc);
-    let aop_coa_noc2 = gen_lens!(PersonInfo, personal_address.country.name);
+    let aop_coa_noc2 = gen_lens!(copy PersonInfo, personal_address.country.name);
 
     let person = PersonInfo {
-        first_name: String::from("Foo"),
-        last_name: String::from("Bar"),
+        first_name: mystr("Foo"),
+        last_name: mystr("Bar"),
         personal_address: ExternalAddress {
-            address: String::from("123, Fake St."),
+            address: mystr("123, Fake St."),
             zip: 12345,
-            country: Country { name: String::from("USA"), flag: 0 }},
+            country: Country { name: mystr("USA"), flag: 0 }},
         office_address: ExternalAddress {
-            address: String::new(), zip: 0,
-            country: Country { name: String::from("USA"), flag: 0 },
+            address: mystr(""), zip: 0,
+            country: Country { name: mystr("USA"), flag: 0 },
         },
     };
 
-    let p2 = aop_coa_noc.set(&person, &String::from("United States"));
-    let p3 = aop_coa_noc2.set(&person, &String::from("United States of America"));
+    let p2 = aop_coa_noc.set(&person, &("United States"));
+    let p3 = aop_coa_noc2.set(&person, &("United States of America"));
 
     println!("Hello, world! {:?} {:?} {:?}", person, p2, p3);
+    println!("Bad choice: {:?}", crate::lens::Getter::view(&aop_coa, &person));
 }
