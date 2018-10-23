@@ -1,4 +1,4 @@
-#[macro_use] mod lens;
+#[macro_use] extern crate lenses;
 
 #[derive(Copy, Clone, Debug)]
 struct Country<'a> {
@@ -23,10 +23,10 @@ struct PersonInfo<'a> {
 
 fn mystr<'a> (v: &'a str) -> &'a str { v }
 
-
+#[test]
 fn main() {
-    use crate::lens::Lens;
-    use crate::lens::compose;
+    use lenses::lens::Lens;
+    use lenses::lens::compose;
 
     let aop = struct_lens!(clone PersonInfo, personal_address);
     let coa = struct_lens!(clone ExternalAddress, country);
@@ -54,9 +54,9 @@ fn main() {
     println!("Result of lense changes:\n{:?}\n{:?}\n{:?}\n\n", person, p2, p3);
 
     // Example of explicit Getter syntax
-    println!("Hello!: {:?}\n", crate::lens::Getter::view(&aop_coa, &person));
+    println!("Hello!: {:?}\n", lenses::lens::Getter::view(&aop_coa, &person));
 
-    {   use crate::lens::Getter; // Example of implicit syntax
+    {   use lenses::lens::Getter; // Example of implicit syntax
         println!("Hello!: {:?}\n", aop_coa.view(&person));
     }
 }
