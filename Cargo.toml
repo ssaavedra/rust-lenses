@@ -3,6 +3,6 @@ name = "lenses"
 version = "0.1.0"
 authors = ["Santiago Saavedra <info@ssaavedra.eu>"]
 edition = "2018"
+license = "Apache-2.0"
+description = "An optics library loosely inspired by Julien Truffaut's Monocle"
 
-[dependencies]
-quote = "0.6.8"
